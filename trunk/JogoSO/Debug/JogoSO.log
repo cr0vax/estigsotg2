@@ -1,0 +1,38 @@
+﻿Build started 02-07-2011 01:50:46.
+     1>Project "D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\JogoSO\JogoSO.vcxproj" on node 2 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "Debug\JogoSO.lastbuildstate".
+       InitializeBuildStatus:
+         Creating "Debug\JogoSO.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W0 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"StdAfx.h" /Fp"Debug\JogoSO.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W0 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\JogoSO.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt JogoSO.cpp
+         JogoSO.cpp
+       ResourceCompile:
+         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /D _AFXDLL /l"0x0409" /nologo /fo"Debug\JogoSO.res" JogoSO.rc 
+       ManifestResourceCompile:
+         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\JogoSO.exe.embed.manifest.res" Debug\JogoSO_manifest.rc 
+       Link:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\Debug\JogoSO.exe" /INCREMENTAL /NOLOGO JogoSODLL.lib /MANIFEST /ManifestFile:"Debug\JogoSO.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\Debug\JogoSO.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\Debug\JogoSO.lib" /MACHINE:X86 Debug\JogoSO.res
+         Debug\JogoSO.exe.embed.manifest.res
+         Debug\JogoSO.obj
+         Debug\stdafx.obj
+       Manifest:
+         Deleting file "Debug\JogoSO.exe.embed.manifest".
+         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\JogoSO.exe.embed.manifest" /manifest Debug\JogoSO.exe.intermediate.manifest "C:\Program Files\Microsoft Visual Studio 10.0\VC\Include\Manifest\dpiaware.manifest"
+         C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\JogoSO.exe.embed.manifest.res" Debug\JogoSO_manifest.rc 
+       LinkEmbedManifest:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\Debug\JogoSO.exe" /INCREMENTAL /NOLOGO JogoSODLL.lib /MANIFEST /ManifestFile:"Debug\JogoSO.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\Debug\JogoSO.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\Debug\JogoSO.lib" /MACHINE:X86 Debug\JogoSO.res
+         Debug\JogoSO.exe.embed.manifest.res
+         Debug\JogoSO.obj
+         Debug\stdafx.obj
+         JogoSO.vcxproj -> D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\Debug\JogoSO.exe
+       FinalizeBuildStatus:
+         Deleting file "Debug\JogoSO.unsuccessfulbuild".
+         Touching "Debug\JogoSO.lastbuildstate".
+     1>Done Building Project "D:\Utilizadores\Bruno\Dcoumentos\Escola\Ano 2\2 Semestre\SO\TG2\JogoSO\JogoSO.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:15.24

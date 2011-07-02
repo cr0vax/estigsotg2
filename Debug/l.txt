@@ -1,0 +1,73 @@
+:JOGADOR
+l
+42
+4
+-1
+:MONSTRO
+Paulo Futre
+-7
+-1
+:MAPA
+Encontraste na entrada do restaurante…O ambiente é muito sombrio avistando-se apenas uma pequena luz a ESTE.
+
+-1
+-1
+1
+-1
+-1
+Entraste numa sala que parece ser a sala de espera dos clientes. Para além de algumas cadeiras e uma televisão existem apenas alguns quadros na parede.
+
+-1
+4
+-1
+0
+-1
+Abriste a porta com dificuldade e entraste no que parece ser o armazém do restaurante. Nas prateleiras encontram-se inúmeros frascos com lagartos, insectos e uma arca frigorífica onde consegues ver alguns gatos…
+
+-1
+5
+-1
+-1
+-1
+Encontras-te numa das salas de jantar do restaurante. As mesas estão todas postas e prontas para a hora de jantar. Olhas ao fundo e vez o que parecem ser umas escadas para o 2º andar.
+
+-1
+6
+4
+-1
+-1
+Entras no corredor do restaurante…Sentes o ambiente algo pesado muito por culpa de uma música tradicional chinesa que ouves vinda da sala a ESTE.
+
+1
+-1
+5
+3
+-1
+Ao entrares da sala deparaste com uma cena macabra e arrepiante…Encontras o grande jogador chinês a ser torturado de uma forma desumana, sendo obrigado a ouvir a entrevista do Paulo Futre. De imediato o desamarras agradecendo-te este por lhe teres salvo a vida
+
+2
+-1
+-1
+4
+0
+Estás no segundo andar do restaurante. Á tua frente tens umas escadas para o 1º andar. Olhas em teu redor e vez apenas alguns vasos chineses
+
+3
+-1
+7
+-1
+-1
+Abres uma porta de correr e entras num pequeno quarto. Á tua direita vez algumas camas por fazer e muita roupa espalhada no chão. 
+
+-1
+-1
+8
+6
+-1
+Aproximaste da porta e sentes um cheiro muito intenso a plástico estilo loja dos chineses! Abres a porta e encontras a fonte do forte cheiro…uma enorme quantidade de caixas com letras chinesas no exterior. Algumas delas então abertas evidenciando o seu conteúdo, camisolas da “aadidas”. 
+
+-1
+-1
+-1
+7
+-1

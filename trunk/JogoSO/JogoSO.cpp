@@ -29,11 +29,13 @@
 
 HANDLE hMutexJogo;					// mutex para controlar o jogo
 HANDLE hPipe;						// handle do pipe
-char msg[ MAX_MSG ];				// mensagem recebida no buffer
 
 #define PIPE_NAME "\\\\.\\pipe\\jogoso" //só é possível criar um named pipe no próprio computador
-#define BUF_SIZE 512
-#define MAX_MSG 512
+#define BUF_SIZE 1024
+#define MAX_MSG 1024
+
+char msgRecebida[ MAX_MSG ];				// mensagem recebida no buffer
+char msgEnviada[ MAX_MSG ];				// mensagem recebida no buffer
 
 //-------------------------------------------------------------------------------------------------
 //	ESTRUTURAS
@@ -112,9 +114,9 @@ void PrintErrorMsg(){
 
 int recebe_mensagem()
 {
-	printf("Entrou no recebe mensagem\n");
+	//printf("Entrou no recebe mensagem\n");
 
-	printf("Servidor>Espera mensagem\n");
+	printf("Servidor>Espera mensagem ");
 	//Leitura do named pipe
 	DWORD cbRead;
 
@@ -122,7 +124,7 @@ int recebe_mensagem()
 	//se encontrarem ligados através do pipe
 	BOOL resSuccess = ReadFile( 
 			hPipe,     // pipe handle 
-			msg,       // buffer to receive reply 
+			msgRecebida,       // buffer to receive reply 
 			BUF_SIZE,  // size of buffer 
 			&cbRead,   // number of bytes read 
 			NULL);     // not overlapped 
@@ -133,11 +135,16 @@ int recebe_mensagem()
 		return -1;
 	}
 
+	printf("Recebi %s\n", msgRecebida);
+
 	return 0;
 }
 
 int envia_mensagem(char msg[ MAX_MSG ])
 {
+
+	//WaitForSingleObject( hMutexJogo,INFINITE );
+
 	printf("Servidor>Envia mensagem:%s\n", msg);
 	DWORD cbWritten;
 	BOOL resSuccess = WriteFile( 
@@ -156,7 +163,11 @@ int envia_mensagem(char msg[ MAX_MSG ])
 		return -1;
 	}
 
+	recebe_mensagem();
+
 	return 0;
+
+	//ReleaseMutex(hMutexJogo);
 }
 
 //Inicializa o jogador
@@ -500,6 +511,12 @@ int aceita_comando_jogador(char *sComando, struct Jogador *pJogador, struct Celu
 	if ( strcmp(sComando, "0") == 0 ) {
 		iAccao = 101;
 	}
+
+	if ( strcmp(sComando, "OK") == 0 ) {
+		iAccao = 200;
+	}
+
+
 	// retorna o movimento que foi feito
 	return iAccao;
 }
@@ -747,7 +764,7 @@ int lutar(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celula pMap
 		iHandyCap = 10;
 	}
 
-
+	/*
 	// descreve status
 		system("cls");
 
@@ -762,17 +779,28 @@ int lutar(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celula pMap
 		printf("     @  - 1\n");
 		printf("3 - /|\\ - 4\n");
 		printf("    / \\ - 2\n");
-		
+	*/	
 	// solicita a posição para atacar (cima, baixo, esquerda, direita, foge)
 		int iJogadorAtaque;
-		printf("Qual a posição em que quer atacar?:");
-		scanf( "%d", &iJogadorAtaque );
+		//printf("Qual a posição em que quer atacar?:");
+		//scanf( "%d", &iJogadorAtaque );
+
+		//	Aceitar Comando do Jogador
+		//"»C|descricao|norte|sul|este|oeste"
+		sprintf(msgEnviada, "»I|%s", "Qual a posição em que quer atacar?:");
+		envia_mensagem(msgEnviada);
+		recebe_mensagem();
+		iJogadorAtaque = atoi(msgRecebida);
 
 
 	// solicita a posição para defender
 		int iJogadorDefesa;
-		printf("Qual a posição em que quer defender?:");
-		scanf( "%d", &iJogadorDefesa );
+		//printf("Qual a posição em que quer defender?:");
+		//scanf( "%d", &iJogadorDefesa );
+		sprintf(msgEnviada, "»I|%s", "Qual a posição em que quer defender?:");
+		envia_mensagem(msgEnviada);
+		recebe_mensagem();
+		iJogadorDefesa = atoi(msgRecebida);
 
 	// random de da posição onde o monstro defende/ataca
 	// (cima, baixo, esquerda, direita, foge)
@@ -787,48 +815,66 @@ int lutar(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celula pMap
 		// ATAQUE
 		if (iJogadorAtaque == iMonstroDefesa)
 		{
-			printf("O monstro defendeu o ataque!\n");
+			//printf("O monstro defendeu o ataque!\n");
+			//envia_mensagem("O monstro defendeu o ataque!\n");
+			sprintf(msgEnviada, "O monstro defendeu o ataque!\n");
+			envia_mensagem(msgEnviada);
 		}
 		else
 		{
 			// desconta o dano no monstro
-			printf("Causou %d pontos de dano no monstro %s\n", iDanoJogador, pMonstro->nome);
+			//printf("Causou %d pontos de dano no monstro %s\n", iDanoJogador, pMonstro->nome);
 			pMonstro->energia = pMonstro->energia - iDanoJogador;
+			sprintf(msgEnviada, "Causou %d pontos de dano no monstro %s\n", iDanoJogador, pMonstro->nome);
+			envia_mensagem(msgEnviada);
 		}
 
 		// DEFESA
 		if (iMonstroAtaque == iJogadorDefesa)
 		{
-			printf("O jogador defendeu o ataque!\n");
+			//printf("O jogador defendeu o ataque!\n");
+			envia_mensagem("O jogador defendeu o ataque!\n");
 		}
 		else
 		{
 			// desconta o dano no jogador
-			printf("O monstro %s causou-lhe %d pontos de dano\n", pMonstro->nome, iDanoMonstro);
+			//printf("O monstro %s causou-lhe %d pontos de dano\n", pMonstro->nome, iDanoMonstro);
 			pJogador->energia = pJogador->energia - iDanoMonstro;
+			sprintf(msgEnviada, "O monstro %s causou-lhe %d pontos de dano\n", pMonstro->nome, iDanoMonstro);
+			envia_mensagem(msgEnviada);
 		}
 
 	// Valida se a luta terminou
-
 		if (pJogador->energia <= 0)
 		{
 			// o monstro matou o jogador
-			printf("Infelizmente o monstro %s matou-o!\n", pMonstro->nome);
+			//printf("Infelizmente o monstro %s matou-o!\n", pMonstro->nome);
+			sprintf(msgEnviada, "»L|1|1");
+			envia_mensagem(msgEnviada);
+
+			sprintf(msgEnviada, "Infelizmente o monstro %s matou-o!\n", pMonstro->nome);
+			envia_mensagem(msgEnviada);
 			iReturn = 0;
 		}
 
 		if (pMonstro->energia <= 0)
 		{
-			// o jogador matou o monstro
-			printf("Parabéns! Matou o monstro %s!\n", pMonstro->nome);
-
 			// remove o monstro do mapa
 			pMonstro->localizacao = -1;
+			
+			sprintf(msgEnviada, "»L|1|0");
+			envia_mensagem(msgEnviada);
+
+			// o jogador matou o monstro
+			//printf("Parabéns! Matou o monstro %s!\n", pMonstro->nome);
+			sprintf(msgEnviada, "Parabéns! Matou o monstro %s!\n", pMonstro->nome);
+			envia_mensagem(msgEnviada);
+
 			iReturn = 0;
 		}
 
 		// pausa se a luta terminou
-		system("pause");
+		//system("pause");
 
 		return iReturn;
 }
@@ -897,14 +943,33 @@ void valida_condicoes_luta(struct Jogador *pJogador, struct Monstro *pMonstro, s
 {
 	if (pJogador->localizacao == pMonstro->localizacao)
 	{
+
 		// avisa o jogador que se encontra na mesma localização que o monstro e que tem de lutar
-		printf("Encontraste o agente do jogador ao entrares na sala! Inicia-se uma violenta batalha...\n");
-		system("pause");
+		//printf("Encontraste o agente do jogador ao entrares na sala! Inicia-se uma violenta batalha...\n");
+		//system("pause");
 		int iResultado = 1;
+
+		// envia dados para o cliente
+		envia_mensagem("Encontraste o agente do jogador ao entrares na sala! Inicia-se uma violenta batalha...\n");
 
 		// Lutar
 		while (iResultado != 0)
 		{
+			sprintf(msgEnviada, "»L|0|0"); // Tipo de comando|0 inicio, 1 fim| 0 vivo, 1 morto
+			envia_mensagem(msgEnviada);
+
+			//"»M|nome|energia|localizacao"
+			sprintf(msgEnviada, "»M|%s|%d|%d", pMonstro->nome, pMonstro->energia, pMonstro->localizacao);
+			envia_mensagem(msgEnviada);
+	
+			//"»J|nome|energia|localizacao|flg_tem_tesouro"
+			sprintf(msgEnviada, "»J|%s|%d|%d|%d", pJogador->nome, pJogador->energia, pJogador->localizacao, pJogador->flg_tem_tesouro);
+			envia_mensagem(msgEnviada);
+
+			//"»S|1"  0 - normal, 1 - luta
+			sprintf(msgEnviada, "»S|%d", 1);
+			envia_mensagem(msgEnviada);
+
 			// descreve status
 			iResultado = lutar(pJogador, pMonstro, pMapa, blnSuperUser);
 		}
@@ -1028,7 +1093,7 @@ void novo_jogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celula
 	envia_mensagem("Indique o nome do jogador:");
 
 	recebe_mensagem();
-	strcpy((char*) nomeJogador, msg);
+	strcpy((char*) nomeJogador, msgRecebida);
 
 	inicializa_jogador(pJogador, (char *) nomeJogador, blnSuperUser );
 
@@ -1209,7 +1274,7 @@ DWORD WINAPI threadMonstro( LPVOID lpParam )
 
 		movimenta_monstro(ppMonstro, ppMapa);
 
-		descreve_monstro(ppMonstro, ppMapa, true);
+		//descreve_monstro(ppMonstro, ppMapa, true);
 
 		ReleaseMutex(hMutexJogo);
 
@@ -1236,63 +1301,62 @@ DWORD WINAPI threadJogador( LPVOID lpParam )
 	{
 		WaitForSingleObject( hMutexJogo,INFINITE );
 
-		//	Descrever a Localização do Jogador
-		descreve_status(ppJogador, ppMapa, true);
+		// envia dados para o cliente
+		sprintf(msgEnviada, "»L|1|0"); // Tipo de comando|0 inicio, 1 fim| 0 vivo, 1 morto
+		envia_mensagem(msgEnviada);
+
+		//"»M|nome|energia|localizacao"
+		sprintf(msgEnviada, "»M|%s|%d|%d", ppMonstro->nome, ppMonstro->energia, ppMonstro->localizacao);
+		envia_mensagem(msgEnviada);
+	
+		//"»J|nome|energia|localizacao|flg_tem_tesouro"
+		sprintf(msgEnviada, "»J|%s|%d|%d|%d", ppJogador->nome, ppJogador->energia, ppJogador->localizacao, ppJogador->flg_tem_tesouro);
+		envia_mensagem(msgEnviada);
+
+		//"»C|descricao|norte|sul|este|oeste"
+		sprintf(msgEnviada, "»C|%s|%d|%d|%d|%d", ppMapa[ppJogador->localizacao].descricao, ppMapa[ppJogador->localizacao].norte, ppMapa[ppJogador->localizacao].sul, ppMapa[ppJogador->localizacao].este, ppMapa[ppJogador->localizacao].oeste);
+		envia_mensagem(msgEnviada);
+
+		//"»S|0"  0 - normal, 1 - luta
+		sprintf(msgEnviada, "»S|%d", 0);
+		envia_mensagem(msgEnviada);
 
 		//	Aceitar Comando do Jogador
-		char* sComando[2];
-		strcpy((char*) sComando, "");
+		//"»C|descricao|norte|sul|este|oeste"
+		sprintf(msgEnviada, "»I|%s", "Insira um comando:");
+		envia_mensagem(msgEnviada);
+		recebe_mensagem();
 
-		// validar/imprimir comandos disponíveis
-		//char* sComandosDisponiveis = valida_comandos_disponiveis(&pMapa[pJogador->localizacao]);
-		char* sComandosDisponiveis = valida_comandos_disponiveis(&ppMapa[ppJogador->localizacao]);
-		printf("%s\n", sComandosDisponiveis);
+		iAccao = aceita_comando_jogador(msgRecebida, ppJogador, ppMapa);
 
-		HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
+		// se o comando for inválido dá mensagem de erro
+		if (iAccao < 0)
+		{
+			printf("Servidor>Comando inválido!: %s\n", msgRecebida);
+			envia_mensagem("Comando inválido!");
+		}
 
-		//define a posição do cursor na consula e imprime naquela posição
-		COORD pos1 = {0, LAST_LINE};
-		SetConsoleCursorPosition( hStdout, pos1 );
-		// solicita comando ao jogador
-		printf("Insira um Comando: ");
+		// se a acção for igual ou superior a 100 é uma acção funcional
+		if (iAccao >= 100)
+		{
+			//comandos_funcionais(iAccao, ppJogador, pMonstro, ppMapa);
+		}
+		else
+		{
+			movimenta_jogador(iAccao, ppJogador);
 
-		descreve_monstro(ppMonstro, ppMapa, true);
+			//  apanha o tesouro
+			bool tesouro = apanha_tesouro(ppJogador, ppMapa);
+
+			if (tesouro == true)
+			{
+				//printf("Apanhou o tesouro! %d\n", jogador.flg_tem_tesouro);
+				//system("pause");
+			}
+
+		}
 
 		ReleaseMutex(hMutexJogo);
-
-		scanf( "%s", sComando );
-
-		iAccao = aceita_comando_jogador((char*) sComando, ppJogador, ppMapa);
-
-		while (iAccao < 0)
-			{
-				// se o comando for inválido dá mensagem de erro
-				if (iAccao < 0)
-				{
-					printf("Comando inválido!\n");
-					system("pause");
-				}
-			}
-
-			// se a acção for igual ou superior a 100 é uma acção funcional
-			if (iAccao >= 100)
-			{
-				//comandos_funcionais(iAccao, ppJogador, pMonstro, ppMapa);
-			}
-			else
-			{
-				movimenta_jogador(iAccao, ppJogador);
-
-				//  apanha o tesouro
-				bool tesouro = apanha_tesouro(ppJogador, ppMapa);
-
-				if (tesouro == true)
-				{
-					//printf("Apanhou o tesouro! %d\n", jogador.flg_tem_tesouro);
-					//system("pause");
-				}
-
-			}
 	}
 	
 	//printf("Aqui-------------------------Jogador\n");
@@ -1419,20 +1483,23 @@ void inicia_jogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celu
 	argTJogador.pMapa = pMapa;
 	argTJogador.pJogador = pJogador;
 	argTJogador.pMonstro = pMonstro;
+	/*
+	sprintf(msgEnviada, "»L|1|0");
+	envia_mensagem(msgEnviada);
 
 	// envia dados para o cliente
 	//"»M|nome|energia|localizacao"
-	sprintf(msg, "»M|%s|%d|%d", pMonstro->nome, pMonstro->energia, pMonstro->localizacao);
-	envia_mensagem(msg);
+	sprintf(msgEnviada, "»M|%s|%d|%d", pMonstro->nome, pMonstro->energia, pMonstro->localizacao);
+	envia_mensagem(msgEnviada);
 	
 	//"»J|nome|energia|localizacao|flg_tem_tesouro"
-	sprintf(msg, "»J|%s|%d|%d|%d", pJogador->nome, pJogador->energia, pJogador->localizacao, pJogador->flg_tem_tesouro);
-	envia_mensagem(msg);
+	sprintf(msgEnviada, "»J|%s|%d|%d|%d", pJogador->nome, pJogador->energia, pJogador->localizacao, pJogador->flg_tem_tesouro);
+	envia_mensagem(msgEnviada);
 
 	//"»C|descricao|norte|sul|este|oeste"
-	sprintf(msg, "»C|%s|%d|%d|%d|%d", pMapa[pJogador->localizacao].descricao, pMapa[pJogador->localizacao].norte, pMapa[pJogador->localizacao].sul, pMapa[pJogador->localizacao].este, pMapa[pJogador->localizacao].oeste);
-	envia_mensagem(msg);
-
+	sprintf(msgEnviada, "»C|%s|%d|%d|%d|%d", pMapa[pJogador->localizacao].descricao, pMapa[pJogador->localizacao].norte, pMapa[pJogador->localizacao].sul, pMapa[pJogador->localizacao].este, pMapa[pJogador->localizacao].oeste);
+	envia_mensagem(msgEnviada);
+	*/
 	//	Movimentar Monstro
 	HANDLE tMonstro = CreateThread( 
 		NULL,              // default security attributes
@@ -1467,6 +1534,10 @@ void inicia_jogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celu
 
 	if (pJogador->energia > 0)
 	{
+
+		//"»F|0"
+		sprintf(msgEnviada, "»F|0");
+
 		// ganhou
 		printf("+-------------------------------------------------------------------------+\n");
 		printf("| Sais rapidamente do restaurante levando contigo o grandioso jogador. A  |\n");
@@ -1478,12 +1549,18 @@ void inicia_jogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celu
 	}
 	else
 	{
+
+		//"»F|0"
+		sprintf(msgEnviada, "»F|1");
+		
 		// perdeu
 		printf("+-------------------------------------------------------------------------+\n");
 		printf("| Infelizmente não foste capaz de salvar o grande jogador chinês!         |\n");
 		printf("| Os charters de chineses nunca virão a ser o que se esperava!            |\n");
 		printf("+-------------------------------------------------------------------------+\n");
 	}
+
+	envia_mensagem(msgEnviada);
 
 	printf("\n\n");
 	printf("____ _ _  _    ___  ____     _ ____ ____ ____   /\n");
@@ -1592,7 +1669,7 @@ int main(int argc, char * argv[], char * envp[])
 				}
 
 				*/
-				iOpcao = atoi(msg);
+				iOpcao = atoi(msgRecebida);
 				printf("Servidor>recebi opção: %d\n", iOpcao);
 
 				// Valida a opção escolhida

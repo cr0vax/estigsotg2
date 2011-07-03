@@ -97,6 +97,50 @@ int liga_pipe()
 	return 0;
 }
 
+void converte_ficheiro(char* strArr[MAX_PARAMS_MSG])
+{
+	#define MAX_COL 400
+
+	FILE *forigem;					// ficheiro de origem
+	FILE *fdestino;					// ficheiro dedestino
+	char l[ MAX_COL ];				// linha
+
+	//Abre o ficheiro do mapa de origem
+	forigem = fopen( strArr[2], "r");
+
+	//Abre o ficheiro do mapa de destino em binário
+	fdestino = fopen(strArr[3], "wb");
+
+	if (forigem != NULL)
+	{
+		if (fdestino != NULL)
+		{
+			// percorre o ficheiro de origem até encontrar o fim
+			while( fgets(l, MAX_COL, forigem) != NULL )
+			{
+
+				//grava a linha no ficheiro binário
+				fwrite(l, sizeof(char), MAX_COL, fdestino);
+			}
+
+			fclose(fdestino);
+		}
+		else
+		{
+			printf("Erro a abrir/criar o ficheiro binário\n"); 
+		}
+
+		fclose(forigem);
+
+		printf("Ficheiro convertido com sucesso!\n");
+		system("pause");
+	}
+	else
+	{
+		printf("Erro a ler o ficheiro %s\n", strArr[2]);
+	}
+}
+
 int envia_mensagem(char msgEnvia [MAX_MSG])
 {
 
@@ -411,14 +455,14 @@ void inicializa_jogador(struct Jogador *pJogador, char* strArr[MAX_PARAMS_MSG])
 {
 	// associa os passados ao jogador
 	strcpy((char*) pJogador->nome,  strArr[1]);
-	pJogador->localizacao		= atoi(strArr[2]);
-	pJogador->flg_tem_tesouro	= atoi(strArr[3]);
+	pJogador->localizacao		= atoi(strArr[3]);
+	pJogador->flg_tem_tesouro	= atoi(strArr[4]);
 	
 	//TODO: if (blnSuperUser == true) {
 	//	pJogador->energia			= 9999;			// energia do superuser
 	//}
 	//else {
-		pJogador->energia			= 100;			// energia do utilizador normal
+		pJogador->energia			= atoi(strArr[2]);			// energia do utilizador normal
 	//}
 }
 
@@ -491,6 +535,9 @@ void imprimir_status (int iStatus, struct Jogador *pJogador, struct Monstro *pMo
 				printf("3 - /|\\ - 4\n");
 				printf("    / \\ - 2\n");
 				break;
+
+		case 2: //menu principal
+				menu_principal();
 	}
 }
 
@@ -584,6 +631,40 @@ void pede_comando (char* strArr[MAX_PARAMS_MSG])
 	printf("%s", strArr[1]);
 	scanf( "%s", iOpcao );
 	envia_mensagem((char*)iOpcao);
+}
+
+void carrega_ficheiro(char* strArr[MAX_PARAMS_MSG])
+{
+	printf("A carregar o jogo...\n");
+	
+	FILE *f;
+	char l[ MAX_COL ];
+
+	printf("Nome do ficheiro: %s", strArr[2]);
+	// carrega o jogo com o nome do jogador
+	f = fopen( strArr[2] , "rb" );
+
+	if ( f != NULL )
+	{
+		// lê o conteúdo do ficheiro
+		while( fread(l, sizeof(char), MAX_COL, f) != NULL )
+		{
+			envia_mensagem(l);
+			recebe_mensagem();
+		}
+
+		fclose( f );
+
+		envia_mensagem("FIM");
+		printf("Jogo carregado com sucesso!\n");
+		system("pause");
+	}
+
+	else
+	{
+		printf("Ficheiro de jogo inválido!\n");
+		system("pause");
+	}
 }
 
 //Verifica que tipo de mensagem foi enviada segundo o protocolo
@@ -683,6 +764,22 @@ int trata_mensagem (struct Jogador *pJogador, struct Monstro *pMonstro, struct C
 		}
 	}
 
+	else if (strcmp(strArr[0], "»O") == 0)
+	{
+		//Verifica qual a opção do menu
+		switch (atoi(strArr[1]))
+		{
+			//abre um ficheiro de um jogo guardado
+			case 0:
+				carrega_ficheiro(strArr);
+
+			//converte ficheiro para binário
+			case 1:
+				converte_ficheiro(strArr);
+		}
+
+	}
+
 	else
 	{
 		printf("%s",strArr[0]);
@@ -719,23 +816,6 @@ int main(int argc, _TCHAR* argv[])
 	else
 	{
 		printf("Ligação ao pipe efectuada!\n");
-
-		menu_principal();
-
-		// solicita a opção ao jogador
-		printf("Escolha uma opção:");
-		scanf( "%s", iOpcao );
-		envia_mensagem((char*)iOpcao);
-
-		// recebe a mensagem
-		recebe_mensagem();
-		system("CLS");
-
-		printf(msg);
-
-		// envia mensagem
-		scanf( "%s", iOpcao );
-		envia_mensagem((char*)iOpcao);
 
 		while (fimJogo == 0)
 		{

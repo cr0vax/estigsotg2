@@ -1090,9 +1090,10 @@ void novo_jogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celula
 	// solicita o nome do jogador
 	//printf( "Indique o nome do jogador:" );
 	//scanf( "%s", &nomeJogador );
-	envia_mensagem("Indique o nome do jogador:");
-
+	sprintf(msgEnviada, "»I|%s", "Indique o nome do jogador:");
+	envia_mensagem(msgEnviada);
 	recebe_mensagem();
+
 	strcpy((char*) nomeJogador, msgRecebida);
 
 	inicializa_jogador(pJogador, (char *) nomeJogador, blnSuperUser );
@@ -1110,89 +1111,167 @@ void novo_jogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celula
 	inicializa_monstro( pMonstro );
 }
 
+void convert_file()
+{
+	char fBinario[100];
+	char fOriginal[100];
+
+	strcpy(fBinario, "");
+	strcpy(fOriginal, "");
+
+	sprintf(msgEnviada, "»I|%s", "Qual o nome do ficheiro a converter?:");
+	envia_mensagem(msgEnviada);
+	recebe_mensagem();
+
+	strcat((char*) fOriginal, msgRecebida);
+	strcat((char*) fBinario, msgRecebida);
+
+	strcat((char*) fOriginal, ".txt");
+	strcat((char*) fBinario, "b.txt");
+
+	//1 converte para binário, nome do ficheiro original, nome do ficheiro binário
+	sprintf(msgEnviada, "»O|1|%s|%s", fOriginal, fBinario);
+	envia_mensagem(msgEnviada);
+}
+
 // carrega um jogo previamente gravado
 void carrega_jogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celula pMapa[])
 {
 	printf("A carregar o jogo...\n");
 	
-	FILE *f;
+	sprintf(msgEnviada, "»I|%s", "Qual o nome do jogo?:");
+	envia_mensagem(msgEnviada);
+	recebe_mensagem();
+
+	sprintf(msgEnviada, "»O|0|%s", strcat((char*) msgRecebida, ".txt"));
+	envia_mensagem(msgEnviada);
+	recebe_mensagem();
+
+	//FILE *f;
 	char l[ MAX_COL ];
 
 	// carrega o jogo com o nome do jogador
-	char* sNomeFicheiro[50];
-	strcpy((char*) sNomeFicheiro, (char*) pJogador->nome);
-	f = fopen( strcat((char*) sNomeFicheiro, ".txt"), "rb" );
+	//char* sNomeFicheiro[50];
+	//strcpy((char*) sNomeFicheiro, (char*) pJogador->nome);
+	//f = fopen( strcat((char*) sNomeFicheiro, ".txt"), "rb" );
 
-	if ( f != NULL )
-	{
+
+	//if ( f != NULL )
+	//{
 		// lê o conteúdo do ficheiro
-		while( fread(l, sizeof(char), MAX_COL, f) != NULL ){
-
+		//while( fread(l, sizeof(char), MAX_COL, f) != NULL ){
+		while( strcmp(msgRecebida, "FIM" ) != 0 )
+		{
+			/*
+			sprintf(msgEnviada, "»O|1", strcat((char*) msgEnviada, ".txt"));
+			envia_mensagem(msgEnviada);
+			recebe_mensagem();
+			*/
 			// se a linha for igual a mapa
-			if (strcmp(strupr(l),":MAPA") == 0)
+			if (strcmp(strupr(msgRecebida),":MAPA") == 0)
 			{
 
 				// carrega cada uma das células do mapa
 				for (int i = 0; i < MAX_CELULAS; i++)
 				{
-					fread(l, sizeof(char), MAX_COL, f);
-					strcpy((char*) pMapa[i].descricao, l);		// nome da célula
+					//fread(l, sizeof(char), MAX_COL, f);
+					envia_mensagem(msgEnviada);
+					recebe_mensagem();
+					//strcpy((char*) pMapa[i].descricao, l);		// nome da célula
+					strcpy((char*) pMapa[i].descricao, msgRecebida);		// nome da célula
 					
-					fread(l, sizeof(char), MAX_COL, f);
-					pMapa[i].norte = atoi(l);							// norte
+					//fread(l, sizeof(char), MAX_COL, f);
+					//pMapa[i].norte = atoi(l);							// norte
+					envia_mensagem(msgEnviada);
+					recebe_mensagem();
+					pMapa[i].norte = atoi(msgRecebida);
 
-					fread(l, sizeof(char), MAX_COL, f);
-					pMapa[i].sul = atoi(l);								// sul
-
-					fread(l, sizeof(char), MAX_COL, f);
-					pMapa[i].este = atoi(l);							// este
-
-					fread(l, sizeof(char), MAX_COL, f);
-					pMapa[i].oeste = atoi(l);							// oeste
-
-					fread(l, sizeof(char), MAX_COL, f);
-					pMapa[i].item = atoi(l);							// item
+					//fread(l, sizeof(char), MAX_COL, f);
+					//pMapa[i].sul = atoi(l);								// sul
+					envia_mensagem(msgEnviada);
+					recebe_mensagem();
+					pMapa[i].sul = atoi(msgRecebida);								// sul
+					
+					//fread(l, sizeof(char), MAX_COL, f);
+					//pMapa[i].este = atoi(l);							// este
+					envia_mensagem(msgEnviada);
+					recebe_mensagem();
+					pMapa[i].este = atoi(msgRecebida);							// este
+					
+					//fread(l, sizeof(char), MAX_COL, f);
+					//pMapa[i].oeste = atoi(l);							// oeste
+					envia_mensagem(msgEnviada);
+					recebe_mensagem();
+					pMapa[i].oeste = atoi(msgRecebida);							// oeste
+					
+					//fread(l, sizeof(char), MAX_COL, f);
+					//pMapa[i].item = atoi(l);							// item
+					envia_mensagem(msgEnviada);
+					recebe_mensagem();
+					pMapa[i].item = atoi(msgRecebida);							// item
+					
 				}
 			}
 
-			if (strcmp(strupr(l),":JOGADOR") == 0)
+			if (strcmp(strupr(msgRecebida),":JOGADOR") == 0)
 			{
-				fread(l, sizeof(char), MAX_COL, f);
-				strcpy((char*) pJogador->nome, l);				// nome do jogador
+				//fread(l, sizeof(char), MAX_COL, f);
+				//strcpy((char*) pJogador->nome, l);				// nome do jogador
+				envia_mensagem(msgEnviada);
+				recebe_mensagem();
+				strcpy((char*) pJogador->nome, msgRecebida);				// nome do jogador
 
-				fread(l, sizeof(char), MAX_COL, f);
-				pJogador->energia = atoi (l);							// energia
+				//fread(l, sizeof(char), MAX_COL, f);
+				//pJogador->energia = atoi (l);							// energia
+				envia_mensagem(msgEnviada);
+				recebe_mensagem();
+				pJogador->energia = atoi (msgRecebida);							// energia
+				
 
-				fread(l, sizeof(char), MAX_COL, f);
-				pJogador->localizacao = atoi (l);						// localizacao
+				//fread(l, sizeof(char), MAX_COL, f);
+				//pJogador->localizacao = atoi (l);						// localizacao
+				envia_mensagem(msgEnviada);
+				recebe_mensagem();
+				pJogador->localizacao = atoi (msgRecebida);						// localizacao
 
-				fread(l, sizeof(char), MAX_COL, f);
-				pJogador->flg_tem_tesouro = atoi (l);					// tesouro
+				//fread(l, sizeof(char), MAX_COL, f);
+				//pJogador->flg_tem_tesouro = atoi (l);					// tesouro
+				envia_mensagem(msgEnviada);
+				recebe_mensagem();
+				pJogador->flg_tem_tesouro = atoi (msgRecebida);					// tesouro
+
 			}
 
-			if (strcmp(strupr(l),":MONSTRO") == 0)
+			if (strcmp(strupr(msgRecebida),":MONSTRO") == 0)
 			{
-				fread(l, sizeof(char), MAX_COL, f);
-				strcpy((char*) pMonstro->nome, l);				// nome do monstro
+				//fread(l, sizeof(char), MAX_COL, f);
+				//strcpy((char*) pMonstro->nome, l);				// nome do monstro
+				envia_mensagem(msgEnviada);
+				recebe_mensagem();
+				strcpy((char*) pMonstro->nome, msgRecebida);				// nome do monstro
 
-				fread(l, sizeof(char), MAX_COL, f);
-				pMonstro->energia = atoi (l);							// energia
+				//fread(l, sizeof(char), MAX_COL, f);
+				//pMonstro->energia = atoi (l);							// energia
+				envia_mensagem(msgEnviada);
+				recebe_mensagem();
+				pMonstro->energia = atoi (msgRecebida);							// energia
 
-				fread(l, sizeof(char), MAX_COL, f);
-				pMonstro->localizacao = atoi (l);						// localizacao
+				//fread(l, sizeof(char), MAX_COL, f);
+				//pMonstro->localizacao = atoi (l);						// localizacao
+				envia_mensagem(msgEnviada);
+				recebe_mensagem();
+				pMonstro->localizacao = atoi (msgRecebida);						// localizacao
+
 			}
+			
+			envia_mensagem(msgEnviada);
+			recebe_mensagem();
+
 		}
+		//fclose( f );
 
-		fclose( f );
-
-		printf("Jogo carregado com sucesso!\n");
-		system("pause");
-	}
-	else
-	{
-		printf("Ficheiro de jogo inválido!\n");
-		system("pause");
-	}
+	printf("Jogo carregado com sucesso!\n");
+	system("pause");
 }
 
 // executa os comandos funcionais
@@ -1279,7 +1358,7 @@ DWORD WINAPI threadMonstro( LPVOID lpParam )
 		ReleaseMutex(hMutexJogo);
 
 		//printf("Aqui-------------------------\n");
-		Sleep(10000);
+		//Sleep(1000);
 	}
 
 	return 0;
@@ -1336,9 +1415,22 @@ DWORD WINAPI threadJogador( LPVOID lpParam )
 			envia_mensagem("Comando inválido!");
 		}
 
-		// se a acção for igual ou superior a 100 é uma acção funcional
+		// TODO: se a acção for igual ou superior a 100 é uma acção funcional
 		if (iAccao >= 100)
 		{
+			switch (iAccao)
+			{
+				// Grava jogo
+				case 100:
+					//"»C|descricao|norte|sul|este|oeste"
+					sprintf(msgEnviada, "»O|0");
+					envia_mensagem(msgEnviada);
+
+					break;
+				// Sai do Jogo
+				case 101:
+					break;
+			}
 			//comandos_funcionais(iAccao, ppJogador, pMonstro, ppMapa);
 		}
 		else
@@ -1483,23 +1575,7 @@ void inicia_jogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Celu
 	argTJogador.pMapa = pMapa;
 	argTJogador.pJogador = pJogador;
 	argTJogador.pMonstro = pMonstro;
-	/*
-	sprintf(msgEnviada, "»L|1|0");
-	envia_mensagem(msgEnviada);
 
-	// envia dados para o cliente
-	//"»M|nome|energia|localizacao"
-	sprintf(msgEnviada, "»M|%s|%d|%d", pMonstro->nome, pMonstro->energia, pMonstro->localizacao);
-	envia_mensagem(msgEnviada);
-	
-	//"»J|nome|energia|localizacao|flg_tem_tesouro"
-	sprintf(msgEnviada, "»J|%s|%d|%d|%d", pJogador->nome, pJogador->energia, pJogador->localizacao, pJogador->flg_tem_tesouro);
-	envia_mensagem(msgEnviada);
-
-	//"»C|descricao|norte|sul|este|oeste"
-	sprintf(msgEnviada, "»C|%s|%d|%d|%d|%d", pMapa[pJogador->localizacao].descricao, pMapa[pJogador->localizacao].norte, pMapa[pJogador->localizacao].sul, pMapa[pJogador->localizacao].este, pMapa[pJogador->localizacao].oeste);
-	envia_mensagem(msgEnviada);
-	*/
 	//	Movimentar Monstro
 	HANDLE tMonstro = CreateThread( 
 		NULL,              // default security attributes
@@ -1657,8 +1733,15 @@ int main(int argc, char * argv[], char * envp[])
 			while (iOpcao != 0)
 			{
 				// solicita a opção ao jogador
-				recebe_mensagem();
+			
+				//"»S|1"  0 - normal, 1 - luta, 2 - menu principal
+				sprintf(msgEnviada, "»S|%d", 2);
+				envia_mensagem(msgEnviada);
 
+				sprintf(msgEnviada, "»I|%s", "Escolha uma opção:");
+				envia_mensagem(msgEnviada);
+				recebe_mensagem();
+				
 				/*
 				printf("opção: %d", (int) msg[0]);
 				system("pause");
@@ -1687,14 +1770,15 @@ int main(int argc, char * argv[], char * envp[])
 
 					case 2:	// Carregar jogo
 						// solicita o nome do jogo
-						printf("Qual o nome do jogo?:");
-						scanf( "%s", &jogador.nome );
+						//printf("Qual o nome do jogo?:");
+						//scanf( "%s", &jogador.nome );
 						carrega_jogo(&jogador, &monstro, mapa);
 						inicia_jogo(&jogador, &monstro, mapa, blnSuperUser);
 						break;
 
 					case 3:	// Converter mapa para binário
-						converte_ficheiro();
+						//converte_ficheiro();
+						convert_file();
 						break;
 				}
 			}
